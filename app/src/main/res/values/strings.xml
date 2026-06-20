@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TATA</string>
+    <string name="empty">Aún no hay mensajes nuevos.\n\nCuando llegue un WhatsApp o un SMS aparecerá aquí en grande.</string>
+    <string name="permission_title">Activar lectura de mensajes</string>
+    <string name="permission_explain">Para mostrar tus mensajes en grande, pulsa el botón y activa \"TATA\" en la lista.</string>
+    <string name="grant">ACTIVAR</string>
+    <string name="read">🔊 LEER</string>
+    <string name="reply">🎤 RESPONDER</string>
+    <string name="call">📞 LLAMAR</string>
+</resources>

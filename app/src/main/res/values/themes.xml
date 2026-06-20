@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Tata" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="colorPrimary">@color/sender</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:fontFamily">@font/atkinson</item>
+        <item name="fontFamily">@font/atkinson</item>
+    </style>
+</resources>

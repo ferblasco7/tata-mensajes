@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#000000</color>
+    <color name="card">#121212</color>
+    <color name="sender">#FFEB3B</color>      <!-- amarillo: nombre del remitente -->
+    <color name="text">#FFFFFF</color>        <!-- blanco: cuerpo del mensaje -->
+    <color name="subtle">#BDBDBD</color>
+    <color name="read_btn">#1B5E20</color>     <!-- verde oscuro -->
+    <color name="reply_btn">#0D47A1</color>    <!-- azul oscuro -->
+    <color name="call_btn">#2E7D32</color>     <!-- verde llamada -->
+    <color name="on_btn">#FFFFFF</color>
+</resources>
