@@ -8,4 +8,6 @@
     <string name="read">🔊 LEER</string>
     <string name="reply">🎤 RESPONDER</string>
     <string name="call">📞 LLAMAR</string>
+    <string name="listen">▶️ ESCUCHAR</string>
+    <string name="open_media">👁️ ABRIR</string>
 </resources>

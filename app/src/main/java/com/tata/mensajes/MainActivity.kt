@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
         adapter = MessageAdapter(
             onRead = ::speak,
             onReply = ::startVoiceReply,
-            onCall = ::callBack
+            onCall = ::callBack,
+            onOpen = ::openConversation
         )
         binding.list.layoutManager = LinearLayoutManager(this)
         binding.list.adapter = adapter
@@ -59,11 +60,27 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
 
-        tts = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                tts?.language = Locale("es", "ES")
-                ttsReady = true
+        initTts()
+    }
+
+    private fun initTts() {
+        // Fuerza el motor de Google si está; si no, usa el predeterminado.
+        val engine = "com.google.android.tts"
+        val listener = TextToSpeech.OnInitListener { status ->
+            if (status != TextToSpeech.SUCCESS) {
+                ttsReady = false
+                return@OnInitListener
             }
+            val res = tts?.setLanguage(Locale("es", "ES"))
+            if (res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED) {
+                tts?.setLanguage(Locale.getDefault())  // reserva
+            }
+            ttsReady = true
+        }
+        tts = try {
+            TextToSpeech(this, listener, engine)
+        } catch (e: Exception) {
+            TextToSpeech(this, listener)  // por si el motor de Google no existe
         }
     }
 
@@ -119,12 +136,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun speak(m: Message) {
-        if (!ttsReady) {
+        val engine = tts
+        if (!ttsReady || engine == null) {
             Toast.makeText(this, "Voz no disponible", Toast.LENGTH_SHORT).show()
             return
         }
+        // Sube la voz al máximo dentro de la app.
+        val params = Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+        }
         val phrase = "Mensaje de ${m.sender}. ${m.text}"
-        tts?.speak(phrase, TextToSpeech.QUEUE_FLUSH, null, m.sig)
+        val result = engine.speak(phrase, TextToSpeech.QUEUE_FLUSH, params, m.sig)
+        if (result != TextToSpeech.SUCCESS) {
+            Toast.makeText(this, "No se pudo reproducir la voz", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun startVoiceReply(m: Message) {
@@ -143,6 +168,15 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             pendingMessage = null
             Toast.makeText(this, "No hay reconocimiento de voz", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun openConversation(m: Message) {
+        val open = m.open ?: return
+        try {
+            open.send()  // abre WhatsApp en ese chat para oír el audio / ver la foto
+        } catch (e: Exception) {
+            Toast.makeText(this, "No se pudo abrir", Toast.LENGTH_LONG).show()
         }
     }
 

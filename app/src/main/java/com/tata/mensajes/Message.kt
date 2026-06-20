@@ -21,5 +21,9 @@ data class Message(
     val time: Long,
     val reply: ReplyAction?,
     /** Si es una llamada perdida: PendingIntent para devolver la llamada. */
-    val call: PendingIntent? = null
+    val call: PendingIntent? = null,
+    /** Es un adjunto (audio/foto/vídeo) sin texto reproducible aquí. */
+    val isMedia: Boolean = false,
+    /** Abre la conversación en su app (para escuchar el audio, ver la foto...). */
+    val open: PendingIntent? = null
 )

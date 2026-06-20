@@ -9,7 +9,8 @@ import com.tata.mensajes.databinding.ItemMessageBinding
 class MessageAdapter(
     private val onRead: (Message) -> Unit,
     private val onReply: (Message) -> Unit,
-    private val onCall: (Message) -> Unit
+    private val onCall: (Message) -> Unit,
+    private val onOpen: (Message) -> Unit
 ) : RecyclerView.Adapter<MessageAdapter.VH>() {
 
     private var items: List<Message> = emptyList()
@@ -43,6 +44,16 @@ class MessageAdapter(
                     replyButton.backgroundTintList =
                         ctx.getColorStateList(R.color.call_btn)
                     replyButton.setOnClickListener { onCall(m) }
+                }
+                m.isMedia && m.open != null -> {
+                    val isAudio = m.text.contains("voz", ignoreCase = true)
+                    replyButton.visibility = android.view.View.VISIBLE
+                    replyButton.text = ctx.getString(
+                        if (isAudio) R.string.listen else R.string.open_media
+                    )
+                    replyButton.backgroundTintList =
+                        ctx.getColorStateList(R.color.call_btn)
+                    replyButton.setOnClickListener { onOpen(m) }
                 }
                 m.reply != null -> {
                     replyButton.visibility = android.view.View.VISIBLE

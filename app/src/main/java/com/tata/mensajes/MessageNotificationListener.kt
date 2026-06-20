@@ -69,21 +69,26 @@ class MessageNotificationListener : NotificationListenerService() {
 
         if (style != null && style.messages.isNotEmpty()) {
             val convTitle = style.conversationTitle?.toString()?.trim()
+            val isGroup = style.isGroupConversation
             for (msg in style.messages) {
                 // person == null => lo enviaste tú: no debe aparecer.
                 if (msg.person == null) continue
-                val body = msg.text?.toString()?.trim().orEmpty()
+                val mime = msg.dataMimeType
+                val raw = msg.text?.toString()?.trim().orEmpty()
+                val isMedia = mime != null || raw.isEmpty()
+                val body = if (raw.isNotEmpty()) raw else mediaLabel(mime)
                 if (body.isEmpty()) continue
                 val person = msg.person?.name?.toString()?.trim()
-                // En grupos antepone quién habla; en chats 1 a 1 usa el título.
+                // Solo en grupos antepone quién habla; en 1 a 1 basta el nombre.
                 val sender = when {
-                    !convTitle.isNullOrEmpty() && !person.isNullOrEmpty() ->
+                    isGroup && !person.isNullOrEmpty() && !convTitle.isNullOrEmpty() ->
                         "$person · $convTitle"
                     !person.isNullOrEmpty() -> person
                     !convTitle.isNullOrEmpty() -> convTitle
                     else -> appLabel
                 }
-                addMessage(convKey, appLabel, sender, body, msg.timestamp, reply)
+                addMessage(convKey, appLabel, sender, body, msg.timestamp, reply,
+                    isMedia = isMedia, open = n.contentIntent)
             }
             return
         }
@@ -98,6 +103,15 @@ class MessageNotificationListener : NotificationListenerService() {
         }
         if (text.isEmpty() || sender.isEmpty()) return
         addMessage(convKey, appLabel, sender, text, sbn.postTime, reply)
+    }
+
+    /** Etiqueta legible para un adjunto sin texto (audio, foto, etc.). */
+    private fun mediaLabel(mime: String?): String = when {
+        mime == null -> ""
+        mime.startsWith("audio") -> "🎤 Mensaje de voz"
+        mime.startsWith("image") -> "📷 Foto"
+        mime.startsWith("video") -> "🎬 Vídeo"
+        else -> "📎 Archivo adjunto"
     }
 
     private fun handleMissedCall(sbn: StatusBarNotification, n: Notification, convKey: String) {
@@ -140,7 +154,9 @@ class MessageNotificationListener : NotificationListenerService() {
         sender: String,
         text: String,
         time: Long,
-        reply: ReplyAction?
+        reply: ReplyAction?,
+        isMedia: Boolean = false,
+        open: android.app.PendingIntent? = null
     ) {
         MessageStore.add(
             Message(
@@ -150,7 +166,9 @@ class MessageNotificationListener : NotificationListenerService() {
                 sender = sender,
                 text = text,
                 time = time,
-                reply = reply
+                reply = reply,
+                isMedia = isMedia,
+                open = open
             )
         )
     }
