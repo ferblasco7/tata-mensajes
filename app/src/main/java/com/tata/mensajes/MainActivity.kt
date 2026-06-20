@@ -1,7 +1,9 @@
 package com.tata.mensajes
 
 import android.app.RemoteInput
+import android.content.ComponentName
 import android.content.Intent
+import android.service.notification.NotificationListenerService
 import android.os.Bundle
 import android.provider.Settings
 import android.speech.RecognizerIntent
@@ -122,6 +124,15 @@ class MainActivity : AppCompatActivity() {
             return
         }
         binding.permissionPanel.visibility = android.view.View.GONE
+
+        // Tras reinstalar, Android desenlaza el servicio aunque el permiso siga
+        // activo. Pedimos el re-enlace para que vuelva a capturar notificaciones.
+        try {
+            NotificationListenerService.requestRebind(
+                ComponentName(this, MessageNotificationListener::class.java)
+            )
+        } catch (_: Exception) {
+        }
 
         val items = MessageStore.snapshot()
         adapter.submit(items)
